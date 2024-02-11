@@ -1,26 +1,40 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { ReactNode, useContext } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+
+import LoginPage from "./components/LoginPage";
+import SignUpPage from "./components/SignUpPage";
+import PrivatePage from "./components/PrivatePage";
+import { Context } from "./index";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <RequireAuthentication redirectTo={"/login"}>
+              <PrivatePage />
+            </RequireAuthentication>
+          }
+        />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignUpPage />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
+function RequireAuthentication({
+  children,
+  redirectTo,
+}: {
+  children: ReactNode;
+  redirectTo: string;
+}) {
+  const store = useContext(Context);
+  return (
+    <>{store.store.isAuthenticated ? children : <Navigate to={redirectTo} />}</>
+  );
+}
 export default App;
